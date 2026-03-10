@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="main-container">
+        <h1 class="page-title">{{ title }}</h1>
+        <div class="about-card">
+            <div class="about-icon">🚀</div>
+            <h2 class="about-subtitle">О проекте</h2>
+            <p class="about-text">
+                Guys — это твоя точка сбора. Здесь говорят начистоту, делятся опытом,
+                решают проблемы и просто общаются на все темы, которые интересны парням:
+                от технологий и спорта до отношений и саморазвития.
+                <span class="about-highlight">Никаких масок, только реальный разговор. Заходи, будь в теме.</span>
+            </p>
+        </div>
+        <hr class="divider">
+        <div class="creator-card">
+            <div class="creator-icon">👨‍💻</div>
+            <h2 class="creator-subtitle">Создатель</h2>
+            <p class="creator-text">
+                Проект создан начинающим разработчиком в учебных и практических целях.
+            </p>
+            <div class="tech-stack">
+                <span class="tech-tag">Django</span>
+                <span class="tech-tag">Python</span>
+                <span class="tech-tag">HTML</span>
+                <span class="tech-tag">CSS</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

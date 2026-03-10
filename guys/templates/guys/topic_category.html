@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="main-container">
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'topic' %}" class="section-link">← Назад к разделам</a>
+    </div>
+    <h1 class="page-title">{{ category.name }}</h1>
+    <p class="description">{{ category.description }}</p>
+    {% if user.is_authenticated %}
+    <div style="text-align: right; margin-bottom: 30px;">
+        <a href="{% url 'add_topic' category.id %}" class="add-news-btn">➕ Новая тема</a>
+    </div>
+    {% endif %}
+    <hr class="divider">
+    <h2 style="color: white; margin-bottom: 20px;">Темы</h2>
+    {% if topics %}
+    <div class="news-list">
+        {% for topic in topics %}
+        <div class="news-section">
+            <h3 class="news-title">
+                <a href="{% url 'topic_discussion' topic.id %}" style="color: white; text-decoration: none;">
+                    {{ topic.title }}
+                </a>
+            </h3>
+            <p class="news-content">
+                Автор: <strong>{{ topic.author.username }}</strong> |
+                <small>{{ topic.created_time|date:"d.m.Y H:i" }}</small>
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-news">
+        <p>В этом разделе пока нет тем</p>
+        {% if user.is_authenticated %}
+        <p style="margin-top: 20px;">
+            <a href="{% url 'add_topic' category.id %}" class="add-news-btn">Создать первую тему</a>
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

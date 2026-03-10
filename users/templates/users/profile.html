@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<title>{{ title }}</title>
+
+<div class="profile-container">
+    <h1>{{ title }}</h1>
+
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="profile-layout">
+            <div class="photo-section">
+                <div class="photo-container">
+                    {% if user.profile.photo %}
+                    <img src="{{ user.profile.photo.url }}" class="profile-photo">
+                    {% else %}
+                    <img src="/media/users/default.png" class="profile-photo">
+                    {% endif %}
+                </div>
+                <div class="photo-upload">
+                    <label for="photo" class="photo-upload-label">Выбрать фото</label>
+                    <input type="file" name="photo" accept="image/*" id="photo" class="file-input">
+                </div>
+            </div>
+            <div class="fields-section">
+                {{ form.as_p }}
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="submit-btn">Сохранить</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

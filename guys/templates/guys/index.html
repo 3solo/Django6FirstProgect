@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="content-wrapper">
+    <div class="main-container">
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="description">
+            Guys — это твоя точка сбора. Здесь говорят начистоту, делятся опытом, решают проблемы и просто общаются на
+            все темы,
+            которые интересны парням: от технологий и спорта до отношений и саморазвития.<br>
+            Никаких масок, только реальный разговор. Заходи, будь в теме.
+        </p>
+        <hr class="divider">
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">💬</span>
+                <h2 class="section-title">Флудилка</h2>
+            </div>
+            <p class="section-text">Общайся на любые темы, делись мыслями</p>
+            <a href="{% url 'flood' %}" class="section-link">Перейти →</a>
+        </div>
+
+        <hr class="divider">
+
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">📰</span>
+                <h2 class="section-title">Новости</h2>
+            </div>
+            <p class="section-text">Будь в курсе последних событий</p>
+            <a href="{% url 'news' %}" class="section-link">Перейти →</a>
+        </div>
+
+        <hr class="divider">
+
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">🎯</span>
+                <h2 class="section-title">Темы для обсуждения</h2>
+            </div>
+            <p class="section-text">Создавай и обсуждай важные темы</p>
+            <a href="{% url 'topic' %}" class="section-link">Перейти →</a>
+        </div>
+        <hr class="divider">
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">🤝</span>
+                <h2 class="section-title">Поддержка</h2>
+            </div>
+            <p class="section-text">Нужна помощь? Задай вопрос и получи ответ</p>
+            <a href="{% url 'support' %}" class="section-link">Перейти →</a>
+        </div>
+        <hr class="divider">
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">ℹ️</span>
+                <h2 class="section-title">О сайте</h2>
+            </div>
+            <p class="section-text">Узнай больше о проекте Guys</p>
+            <a href="{% url 'about' %}" class="section-link">Перейти →</a>
+        </div>
+        {% if not user.is_authenticated %}
+        <div class="cta-block">
+            <h2 class="cta-title">Готов к реальному разговору?</h2>
+            <p class="cta-text">Присоединяйся к сообществу Guys прямо сейчас</p>
+            <div class="cta-buttons">
+                <a href="{% url 'users:register' %}" class="cta-button">Начать общаться ✨</a>
+                <a href="{% url 'users:login' %}" class="cta-button-secondary">Войти →</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="main-container">
+    <h1 class="page-title">{{ title }}</h1>
+    {% if user.is_authenticated %}
+    <div style="text-align: right; margin-bottom: 20px;">
+        <a href="{% url 'add_category' %}" class="add-news-btn">➕ Создать новый раздел</a>
+    </div>
+    {% endif %}
+    {% if categories %}
+    <div class="news-list">
+        {% for category in categories %}
+        <div class="news-section">
+            <h2 class="news-title">
+                <a href="{% url 'topic_category' category.id %}" style="color: white; text-decoration: none;">
+                    {{ category.name }}
+                </a>
+            </h2>
+            <p class="news-content">{{ category.description|default:"Нет описания" }}</p>
+            <span class="news-date">Раздел создан</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-news">
+        <p>Пока нет ни одного раздела.</p>
+        {% if user.is_authenticated %}
+        <p style="margin-top: 20px;">
+            <a href="{% url 'add_category' %}" class="add-news-btn">Создать первый раздел</a>
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

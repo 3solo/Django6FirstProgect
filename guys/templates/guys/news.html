@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="main-container">
+    <h1 class="page-title">{{ title }}</h1>
+    <a href="{% url 'add_news' %}" class="add-news-btn">+ Добавить новость</a>
+    <div class="news-list">
+        {% for item in news %}
+        <div class="news-section">
+            <h2 class="news-title">{{ item.title }}</h2>
+            {% if item.photo %}
+            <div style="display: flex; justify-content: center; margin: 15px 0;">
+                <div style="width: 200px; height: 200px; border-radius: 15px; overflow: hidden; border: 3px solid rgba(255, 255, 255, 0.3); box-shadow: var(--shadow-md);">
+                    <img src="{{ item.photo.url }}" alt="{{ item.title }}"
+                         style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                </div>
+            </div>
+            {% endif %}
+            <p class="news-content">{{ item.content }}</p>
+            <span class="news-date">{{ item.time_drop }}</span>
+        </div>
+        {% empty %}
+        <div class="empty-news">
+            <p>Новостей пока нет</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

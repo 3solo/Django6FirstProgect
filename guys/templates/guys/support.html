@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="content-wrapper">
+    <div class="main-container">
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="description">
+            Нужна помощь? Есть вопросы? Мы всегда на связи! Выбери удобный способ связи.
+        </p>
+        <hr class="divider">
+        <div class="support-grid">
+            <div class="support-card">
+                <div class="support-icon">📱</div>
+                <h2 class="support-title">Telegram</h2>
+                <p class="support-text">Быстрая связь через Telegram</p>
+                <a href="https://t.me/xc_usein" class="support-link" target="_blank">@guys_support</a>
+            </div>
+
+            <div class="support-card">
+                <div class="support-icon">📧</div>
+                <h2 class="support-title">Email</h2>
+                <p class="support-text">Напиши нам на почту</p>
+                <a href="mailto:dvzvovo@gmail.com" class="support-link">dvzvovo@gmail.com</a>
+            </div>
+        </div>
+        <hr class="divider">
+    </div>
+</div>
+{% endblock %}

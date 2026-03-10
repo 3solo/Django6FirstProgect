@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="main-container chat-view">
+    <div class="back-link">
+        <a href="{% url 'topic_category' topic_dis.category.id %}" class="section-link">← Назад к темам</a>
+    </div>
+    <h1 class="page-title">{{ topic_dis.title }}</h1>
+    <p class="description">Автор: <strong>{{ topic_dis.author.username }}</strong></p>
+    <hr class="divider">
+    <div class="chat-container">
+        {% for msg in topic_dis.topicmessages_set.all %}
+        <div class="chat-message">
+            <div class="message-author">{{ msg.author.username }}</div>
+            <div class="message-text">{{ msg.content }}</div>
+            <div class="message-time">{{ msg.created_time|date:"H:i d.m.Y" }}</div>
+        </div>
+        {% empty %}
+        <div class="empty-chat">
+            <p>Пока нет сообщений</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% if user.is_authenticated %}
+    <div class="chat-input-area">
+        <form method="post" class="chat-form">
+            {% csrf_token %}
+            {{ form.content }}
+            <button type="submit" class="chat-submit-btn">Отправить →</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="empty-chat">
+        <p><a href="{% url 'login' %}" class="login-link">Войдите</a> чтобы писать сообщения</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

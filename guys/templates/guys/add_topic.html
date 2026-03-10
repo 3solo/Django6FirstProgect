@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<p><a href="{% url 'topic_category' category.id %}">Назад</a></p>
+<h1>Новая тема в {{category.name}}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Создать тему</button>
+</form>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>{{ title }}</h1>
+<div style="background: white; border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 20px;">
+    {% for msg in messages %}
+    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+        {% if msg.user.profile.photo %}
+        <img src="{{ msg.user.profile.photo.url }}"
+             style="width: 30px; height: 30px; border-radius: 50%; margin-right: 8px;">
+        {% else %}
+        <img src="/media/users/default.png"
+             style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover; margin-right: 8px;">
+        {% endif %}
+        <div><b>{{ msg.user.username }}:</b> {{ msg.message }}</div>
+    </div>
+    {% empty %}
+    <p>Нет сообщений</p>
+    {% endfor %}
+</div>
+<form method="post" autocomplete="off">
+    {% csrf_token %}
+    {{ form.message }}
+    <button type="submit">Отправить</button>
+</form>
+{% endblock %}
