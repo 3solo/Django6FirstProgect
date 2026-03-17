@@ -1,10 +1,11 @@
-from django.contrib.auth.decorators import login_required
-from django.db.transaction import commit
-from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, ListView, CreateView, DetailView
 from guys.forms import FloodForm, NewsForm, CategoryForm, TopicForm, TopicMessagesForm
 from guys.models import FloodMessages, News, Category, Topic
 
-menu = [{'title': "Флудилка", 'url_name': 'flood'},
+menu = [{'title': "Общий чат", 'url_name': 'flood'},
         {'title': "Новости", 'url_name': 'news'},
         {'title': "Темы для обсуждения", 'url_name': 'topic'},
         {'title': "Поддержка", 'url_name': 'support'},
@@ -12,105 +13,174 @@ menu = [{'title': "Флудилка", 'url_name': 'flood'},
         ]
 
 
-def index(request):
-    data = {'title': "Главная страница сайта", 'menu': menu, }
-    return render(request, 'guys/index.html', data)
+class IndexView(TemplateView):
+    template_name = 'guys/index.html'
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['title'] = 'Главная страница сайта'
+        context['menu'] = menu
+        return context
 
 
-def news(request):
-    news_post = News.objects.all().order_by('-time_drop')
-    return render(request, 'guys/news.html', {'title': "Новости",
-                                              'menu': menu, 'news': news_post})
+class NewsView(ListView):
+    model = News
+    template_name = 'guys/news.html'
+    context_object_name = 'news'
+
+    def get_queryset(self):
+        return News.objects.all().order_by('-time_drop')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'Новости'
+        context['menu'] = menu
+        return context
 
 
-@login_required
-def add_news(request):
-    if request.method == 'POST':
-        form = NewsForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('news')
-    else:
-        form = NewsForm()
-    return render(request, 'guys/add_news.html', {'title': "Добавление новости",
-                                                  'menu': menu, 'form': form})
+class AddNewsView(LoginRequiredMixin, CreateView):
+    form_class = NewsForm
+    template_name = 'guys/add_news.html'
+    success_url = reverse_lazy('news')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'Добавление новости'
+        context['menu'] = menu
+        return context
 
 
-@login_required
-def flood(request):
-    if request.method == 'POST':
+class FloodView(LoginRequiredMixin, ListView):
+    model = FloodMessages
+    template_name = 'guys/flood.html'
+    context_object_name = 'messages'
+
+    def get_queryset(self):
+        return FloodMessages.objects.all().order_by('time_drop')[:50]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'Общий чат'
+        context['menu'] = menu
+        context['form'] = FloodForm()
+        return context
+
+    def post(self,request):
         form = FloodForm(request.POST)
         if form.is_valid():
             message = form.save(commit=False)
             message.user = request.user
             message.save()
             return redirect('flood')
-    else:
-        form = FloodForm()
-    messages = FloodMessages.objects.all().order_by('time_drop')[:50]
-    return render(request, 'guys/flood.html', {'title': "Флудилка",
-                                               'menu': menu, 'messages': messages, 'form': form})
+
+        context = self.get_context_data()
+        context['form'] = form
+        return render(request, self.template_name, context)
 
 
-def support(request):
-    return render(request, 'guys/support.html', {'title': "Поддержка", 'menu': menu, })
+class SupportView(TemplateView):
+    template_name = 'guys/support.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'Поддержка'
+        context['menu'] = menu
+        return context
 
 
-def topic(request):
-    categories = Category.objects.all()
-    return render(request, 'guys/topic.html',
-                  {'title': "Темы для обсуждения", 'menu': menu, 'categories': categories})
+class TopicView(ListView):
+    model = Category
+    template_name = 'guys/topic.html'
+    context_object_name = 'categories'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'Темы для обсуждения'
+        context['menu'] = menu
+        return context
 
 
-def topic_category(request, category_id):
-    category = Category.objects.get(id=category_id)
-    topics = Topic.objects.filter(category=category)
-    return render(request, 'guys/topic_category.html',  {'title': "Категории тем",
-        'category': category,'topics': topics,'menu': menu,})
+class TopicCategoryView(DetailView):
+    model = Category
+    template_name = 'guys/topic_category.html'
+    context_object_name = 'category'
+    pk_url_kwarg = 'category_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Категории тем'
+        context['menu'] = menu
+        context['topics'] = Topic.objects.filter(category=self.object)
+        return context
 
 
-def add_topic(request, category_id):
-    category =  Category.objects.get(id=category_id)
-    if request.method == 'POST':
-        form = TopicForm(request.POST)
-        if form.is_valid():
-            topics = form.save(commit=False)
-            topics.category = category
-            topics.author = request.user
-            topics.save()
-            return redirect('topic_category', category_id=category.id)
-    else:
-        form = TopicForm()
-    return render(request, 'guys/add_topic.html',
-                      {'title': "Добавление темы", 'menu': menu, 'form': form, 'category': category,})
+class AddTopicView(LoginRequiredMixin, CreateView):
+    form_class = TopicForm
+    template_name = 'guys/add_topic.html'
+    category = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.category = get_object_or_404(Category, id=kwargs['category_id'])
+        return super().dispatch(request, **kwargs)
+
+    def form_valid(self, form):
+        topics = form.save(commit=False)
+        topics.category = self.category
+        topics.author = self.request.user
+        topics.save()
+        return redirect('topic_category', category_id=self.category.id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Добавление темы"
+        context['menu'] = menu
+        context['category'] = self.category
+        return context
 
 
-def topic_discussion(request, topic_id):
-    topic_dis = Topic.objects.get(id=topic_id)
-    if request.method == 'POST':
+class TopicDiscussion(LoginRequiredMixin, DetailView):
+    model = Topic
+    template_name = 'guys/topic_discussion.html'
+    context_object_name = 'topic_dis'
+    pk_url_kwarg = 'topic_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = TopicMessagesForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
         form = TopicMessagesForm(request.POST)
         if form.is_valid():
             dis = form.save(commit=False)
-            dis.topic = topic_dis
+            dis.topic = self.object
             dis.author = request.user
             dis.save()
-            return redirect('topic_discussion', topic_id)
-    else:
-        form = TopicMessagesForm()
-    return render(request, 'guys/topic_discussion.html', {'topic_dis': topic_dis,'form': form })
+            return redirect('topic_discussion', self.object.id)
+
+        context = self.get_context_data()
+        context['form'] = form
+        return render(request, self.template_name, context)
 
 
-def add_category(request):
-    if request.method == 'POST':
-        form = CategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('topic')
-    else:
-        form = CategoryForm()
-    return render(request, 'guys/add_category.html',
-                  {'title': "Добавление раздела", 'menu': menu, 'form': form})
+class AddCategoryView(LoginRequiredMixin, CreateView):
+    form_class = CategoryForm
+    template_name = 'guys/add_category.html'
+    success_url = reverse_lazy('topic')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Добавление раздела"
+        context['menu'] = menu
+        return context
 
 
-def about(request):
-    return render(request, 'guys/about.html', {'title': "О сайте", 'menu': menu, })
+class AboutView(TemplateView):
+    template_name = 'guys/about.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'О сайте'
+        context['menu'] = menu
+        return context
